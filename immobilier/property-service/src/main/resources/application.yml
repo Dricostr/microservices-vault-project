@@ -1,0 +1,27 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: property-service
+
+  datasource:
+    # ${VAR_NAME} reads from environment variables - NEVER hardcode passwords!
+    url: jdbc:postgresql://${DB_HOST:localhost}:5432/${PROPERTY_DB_NAME:property_db}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update   # auto-creates/updates tables based on your @Entity classes
+    show-sql: true        # prints SQL queries in logs (useful during dev)
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+# Register this service with Eureka (service discovery)
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${EUREKA_HOST:localhost}:8761/eureka/

@@ -1,0 +1,40 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: agent-service
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:5432/${AGENT_DB_NAME:agent_db}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${EUREKA_HOST:localhost}:8761/eureka/
+```
+
+---
+
+## Step 4 — API Gateway (the most important part to understand)
+
+### 🧠 How the Gateway works — explained simply
+
+> Think of the Gateway like a **hotel receptionist**. Every visitor comes to the front desk. The receptionist looks at what they want, and **forwards them to the right room** (service). The visitors never walk directly to the rooms.
+
+The routing is configured in `application.yml` using **predicates** (conditions) and **filters** (transformations):
+```
+Request: GET /api/properties/search?location=Paris
+   ↓
+Gateway checks: does path start with /api/properties ?  → YES
+   ↓
+Forwards to: http://property-service:8081/api/properties/search?location=Paris
