@@ -1,0 +1,4 @@
+/home/driss/microservices-vault-project/immobilier/booking-service/src/main/java/com/immobilier/booking/BookingServiceApplication.java
+/home/driss/microservices-vault-project/immobilier/booking-service/src/main/java/com/immobilier/booking/controller/BookingController.java
+/home/driss/microservices-vault-project/immobilier/booking-service/src/main/java/com/immobilier/booking/model/Booking.java
+/home/driss/microservices-vault-project/immobilier/booking-service/src/main/java/com/immobilier/booking/repository/BookingRepository.java

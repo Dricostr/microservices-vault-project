@@ -7,7 +7,12 @@
   <version>1.0-SNAPSHOT</version>
   <name>api-gateway</name>
   <url>http://maven.apache.org</url>
-
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.2.3</version> <!-- use the latest stable version -->
+    <relativePath/> <!-- lookup parent from repository -->
+</parent>
    <properties>
     <java.version>17</java.version>
     <!-- Spring Cloud manages versions for gateway, eureka etc. -->

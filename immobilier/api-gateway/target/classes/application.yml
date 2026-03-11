@@ -1,0 +1,62 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      # Global CORS config: allows your frontend (React/Vue/etc.) to call the gateway
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+
+      routes:
+        # ─────────────────────────────────────────────────────────────
+        # ROUTE 1: Property Service
+        # ─────────────────────────────────────────────────────────────
+        - id: property-service          # unique name for this route (for logs)
+          
+          # lb:// means "load balanced" - uses Eureka to find the service by name
+          # instead of hardcoding: http://localhost:8081
+          # This is how it works in cloud: the IP can change, the name stays the same
+          uri: lb://property-service
+          
+          predicates:
+            # This route is triggered when the URL path starts with /api/properties
+            - Path=/api/properties/**
+          
+          filters:
+            # Adds a custom header to every forwarded request
+            # Useful for tracing which gateway sent the request
+            - AddRequestHeader=X-Gateway-Source, immobilier-gateway
+
+        # ─────────────────────────────────────────────────────────────
+        # ROUTE 2: Booking Service
+        # ─────────────────────────────────────────────────────────────
+        - id: booking-service
+          uri: lb://booking-service
+          predicates:
+            - Path=/api/bookings/**
+          filters:
+            - AddRequestHeader=X-Gateway-Source, immobilier-gateway
+
+        # ─────────────────────────────────────────────────────────────
+        # ROUTE 3: Agent Service
+        # ─────────────────────────────────────────────────────────────
+        - id: agent-service
+          uri: lb://agent-service
+          predicates:
+            - Path=/api/agents/**
+          filters:
+            - AddRequestHeader=X-Gateway-Source, immobilier-gateway
+
+# Tell Eureka where to register this gateway
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${EUREKA_HOST:localhost}:8761/eureka/

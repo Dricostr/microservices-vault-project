@@ -1,0 +1,4 @@
+/home/driss/microservices-vault-project/immobilier/property-service/src/main/java/com/immobilier/property/PropertyServiceApplication.java
+/home/driss/microservices-vault-project/immobilier/property-service/src/main/java/com/immobilier/property/model/Property.java
+/home/driss/microservices-vault-project/immobilier/property-service/src/main/java/com/immobilier/property/controller/PropertyController.java
+/home/driss/microservices-vault-project/immobilier/property-service/src/main/java/com/immobilier/property/repository/PropertyRepository.java

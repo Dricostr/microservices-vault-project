@@ -7,6 +7,14 @@
   <version>1.0-SNAPSHOT</version>
   <name>booking-service</name>
   <url>http://maven.apache.org</url>
+
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.2.3</version> <!-- use the latest stable version -->
+    <relativePath/> <!-- lookup parent from repository -->
+</parent>
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -14,7 +22,6 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
-
         <!-- Web: lets us create REST API endpoints (@RestController, @GetMapping etc.) -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
