@@ -11,15 +11,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'microsoft'
+
       - name: Build microservice
         run: |
           cd immobilier/booking-service
           mvn clean package
+
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
@@ -34,10 +37,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: booking-service-jar
-       
+
+      - name: List downloaded files
+        run: ls -l
+
       - name: Deploy to App Service
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'bookinservice'
           publish-profile: ${{ secrets.AZURE_BOOKIN_SERVICE_PUBLISH_PROFILE }}
-          package: '*.jar'
+          package: './booking-service-jar/*.jar'  
