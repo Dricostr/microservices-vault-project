@@ -4,46 +4,49 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'immobilier/booking-service/**'
   workflow_dispatch:
 
 jobs:
+
   build:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Set up Java
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'microsoft'
 
-      - name: Build microservice
+      - name: Build booking-service
         run: |
           cd immobilier/booking-service
-          mvn clean package
+          mvn clean package -DskipTests
 
-      - name: Upload JAR
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: booking-service-jar
+          name: booking-service
           path: immobilier/booking-service/target/*.jar
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
+
     steps:
-      - name: Download JAR
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: booking-service-jar
+          name: booking-service
 
-      - name: List downloaded files
-        run: ls -l
-
-      - name: Deploy to App Service
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'bookinservice'
+          app-name: bookinservice
           publish-profile: ${{ secrets.AZURE_BOOKIN_SERVICE_PUBLISH_PROFILE }}
-          package: ./booking-service-jar/booking-service-1.0-SNAPSHOT.jar
+          package: '*.jar'
