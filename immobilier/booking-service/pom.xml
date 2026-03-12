@@ -47,6 +47,13 @@
       <artifactId>lombok</artifactId>
       <optional>true</optional>
     </dependency>
+     <!-- In-memory database for testing on Azure -->
+    <dependency>
+    <groupId>com.h2database</groupId>
+         <artifactId>h2</artifactId>
+        <scope>runtime</scope>
+     </dependency>
+      
   </dependencies>
 
 
