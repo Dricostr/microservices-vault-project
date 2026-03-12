@@ -1,0 +1,52 @@
+name: Deploy Booking Service to Azure
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'immobilier/booking-service/**'
+  workflow_dispatch:
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build booking-service
+        run: |
+          cd immobilier/booking-service
+          mvn clean package -DskipTests
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: booking-service
+          path: immobilier/booking-service/target/*.jar
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: booking-service
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: bookinservice
+          publish-profile: ${{ secrets.AZURE_BOOKIN_SERVICE_PUBLISH_PROFILE }}
+          package: '*.jar'
