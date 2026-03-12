@@ -32,7 +32,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: booking-service
-          path: ${{github.workspace}}/target/*.jar
+          path: immobilier/booking-service/target/*.jar
 
   deploy:
     runs-on: ubuntu-latest
