@@ -34,14 +34,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: booking-service-jar
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+       
       - name: Deploy to App Service
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'bookinservice'
+          publish-profile: ${{ secrets.AZURE_BOOKIN_SERVICE_PUBLISH_PROFILE }}
           package: '*.jar'
