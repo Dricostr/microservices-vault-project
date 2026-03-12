@@ -1,23 +1,15 @@
 server:
-  port: 8082
+  port: ${PORT:8080}
 
 spring:
   application:
     name: booking-service
-  datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:5432/${BOOKING_DB_NAME:booking_db}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
-    driver-class-name: org.postgresql.Driver
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
 
 eureka:
   client:
-    service-url:
-      defaultZone: http://${EUREKA_HOST:localhost}:8761/eureka/
+    enabled: false   # ← add this, stops Eureka from crashing the app
