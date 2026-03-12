@@ -5,11 +5,7 @@ spring:
   application:
     name: booking-service
 
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
-      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
-
+  
 eureka:
   client:
     enabled: false   # ← add this, stops Eureka from crashing the app
