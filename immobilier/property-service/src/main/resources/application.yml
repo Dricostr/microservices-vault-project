@@ -1,27 +1,20 @@
 server:
-  port: 8081
-
+  port: ${server.port:8080}   # 8081 for property, 8082 booking, 8083 agent
+ 
 spring:
   application:
-    name: property-service
-
+    name: property-service    # change per service
   datasource:
-    # ${VAR_NAME} reads from environment variables - NEVER hardcode passwords!
-    url: jdbc:postgresql://${DB_HOST:localhost}:5432/${PROPERTY_DB_NAME:property_db}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    url: ${db_url}            # injected from Vault
+    username: ${db_username}  # injected from Vault
+    password: ${db_password}  # injected from Vault
     driver-class-name: org.postgresql.Driver
-
   jpa:
     hibernate:
-      ddl-auto: update   # auto-creates/updates tables based on your @Entity classes
-    show-sql: true        # prints SQL queries in logs (useful during dev)
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-
-# Register this service with Eureka (service discovery)
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+ 
 eureka:
   client:
-    service-url:
-      defaultZone: http://${EUREKA_HOST:localhost}:8761/eureka/
+    enabled: false

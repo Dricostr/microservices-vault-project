@@ -1,11 +1,20 @@
 server:
-  port: ${PORT:8080}
-
+  port: ${server.port:8080}   # 8081 for property, 8082 booking, 8083 agent
+ 
 spring:
   application:
-    name: booking-service
-
-  
+    name: booking-service    # change per service
+  datasource:
+    url: ${db_url}            # injected from Vault
+    username: ${db_username}  # injected from Vault
+    password: ${db_password}  # injected from Vault
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+ 
 eureka:
   client:
-    enabled: false   # ← add this, stops Eureka from crashing the app
+    enabled: false

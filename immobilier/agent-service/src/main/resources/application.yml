@@ -1,24 +1,20 @@
 server:
-  port: 8083
-
+  port: ${server.port:8080}   # 8081 for property, 8082 booking, 8083 agent
+ 
 spring:
   application:
-    name: agent-service
+    name: agent-service    # change per service
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:5432/${AGENT_DB_NAME:agent_db}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    url: ${db_url}            # injected from Vault
+    username: ${db_username}  # injected from Vault
+    password: ${db_password}  # injected from Vault
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+ 
 eureka:
   client:
-    service-url:
-      defaultZone: http://${EUREKA_HOST:localhost}:8761/eureka/
-
+    enabled: false

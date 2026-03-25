@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: booking-service
+  cloud:
+    vault:
+      uri: ${SPRING_CLOUD_VAULT_URI:http://localhost:8200}
+      authentication: APPROLE
+      app-role:
+        role-id: ${SPRING_CLOUD_VAULT_APP_ROLE_ROLE_ID}
+        secret-id: ${SPRING_CLOUD_VAULT_APP_ROLE_SECRET_ID}
+      kv:
+        enabled: true
+        backend: secret
+        default-context: immobilier/booking-service
+      generic:
+        enabled: false

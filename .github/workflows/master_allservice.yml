@@ -1,0 +1,70 @@
+###############################################################
+# IMMOBILIER - GitHub Actions
+# Builds all 3 JARs and uploads them as artifacts
+# Ansible is run MANUALLY on VM1 — not triggered here
+###############################################################
+
+name: Build Immobilier Services
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'microsoft'
+
+      - name: Build property-service
+        run: |
+          cd immobilier/property-service
+          mvn clean package -DskipTests
+
+      - name: Build booking-service
+        run: |
+          cd immobilier/booking-service
+          mvn clean package -DskipTests
+
+      - name: Build agent-service
+        run: |
+          cd immobilier/agent-service
+          mvn clean package -DskipTests
+
+      - name: Upload property-service artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: property-service
+          path: immobilier/property-service/target/*.jar
+          retention-days: 7
+
+      - name: Upload booking-service artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: booking-service
+          path: immobilier/booking-service/target/*.jar
+          retention-days: 7
+
+      - name: Upload agent-service artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-service
+          path: immobilier/agent-service/target/*.jar
+          retention-days: 7
+
+      - name: Build summary
+        run: |
+          echo "✅ All 3 JARs built and uploaded as artifacts"
+          echo "➡️  Run Ansible manually on VM1 to deploy:"
+          echo "    ansible-playbook -i inventory.yml main.yml --ask-vault-pass"
