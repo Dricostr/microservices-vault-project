@@ -60,6 +60,13 @@
         <artifactId>spring-cloud-starter-bootstrap</artifactId>
     </dependency>
  
+
+         <!-- this dependency used to check the api health -->
+       <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+  
   </dependencies>
 
    
