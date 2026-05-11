@@ -1,7 +1,7 @@
 ###############################################################
 # IMMOBILIER - GitHub Actions
-# Builds all 3 JARs and uploads them as artifacts
-# Ansible is run MANUALLY on VM1 — not triggered here
+# Builds all 3 JARs and pushes them to Nexus
+# Ansible is still run MANUALLY on VM1
 ###############################################################
 
 name: Build Immobilier Services
@@ -14,7 +14,7 @@ on:
 
 jobs:
 
-  build:
+  build-and-publish:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,44 +27,76 @@ jobs:
           java-version: '21'
           distribution: 'microsoft'
 
-      - name: Build property-service
+      # ── Fetch Nexus credentials from Vault ────────────
+      - name: Authenticate with Vault
+        id: vault-login
+        run: |
+          VAULT_TOKEN=$(curl -sf \
+            --request POST \
+            --data "{\"role_id\":\"${{ secrets.VAULT_ROLE_ID }}\",\"secret_id\":\"${{ secrets.VAULT_SECRET_ID }}\"}" \
+            ${{ secrets.VAULT_ADDR }}/v1/auth/approle/login \
+            | jq -r '.auth.client_token')
+          echo "::add-mask::$VAULT_TOKEN"
+          echo "token=$VAULT_TOKEN" >> $GITHUB_OUTPUT
+
+      - name: Read Nexus credentials from Vault
+        id: nexus-creds
+        run: |
+          CREDS=$(curl -sf \
+            -H "X-Vault-Token: ${{ steps.vault-login.outputs.token }}" \
+            ${{ secrets.VAULT_ADDR }}/v1/secret/data/nexus/deploy)
+          NEXUS_USER=$(echo $CREDS | jq -r '.data.data.username')
+          NEXUS_PASS=$(echo $CREDS | jq -r '.data.data.password')
+          NEXUS_URL=$(echo $CREDS  | jq -r '.data.data.url')
+          echo "::add-mask::$NEXUS_PASS"
+          echo "user=$NEXUS_USER" >> $GITHUB_OUTPUT
+          echo "pass=$NEXUS_PASS" >> $GITHUB_OUTPUT
+          echo "url=$NEXUS_URL"   >> $GITHUB_OUTPUT
+
+      # ── Write Maven settings.xml with Nexus auth ──────
+      - name: Write Maven settings.xml
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml << EOF
+          <settings>
+            <servers>
+              <server>
+                <id>nexus-releases</id>
+                <username>${{ steps.nexus-creds.outputs.user }}</username>
+                <password>${{ steps.nexus-creds.outputs.pass }}</password>
+              </server>
+              <server>
+                <id>nexus-snapshots</id>
+                <username>${{ steps.nexus-creds.outputs.user }}</username>
+                <password>${{ steps.nexus-creds.outputs.pass }}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
+
+      # ── Build + push each service ──────────────────────
+      - name: Build and publish property-service
         run: |
           cd immobilier/property-service
-          mvn clean package -DskipTests
+          mvn --batch-mode clean deploy -DskipTests \
+            -Dnexus.url=${{ steps.nexus-creds.outputs.url }}
 
-      - name: Build booking-service
+      - name: Build and publish booking-service
         run: |
           cd immobilier/booking-service
-          mvn clean package -DskipTests
+          mvn --batch-mode clean deploy -DskipTests \
+            -Dnexus.url=${{ steps.nexus-creds.outputs.url }}
 
-      - name: Build agent-service
+      - name: Build and publish agent-service
         run: |
           cd immobilier/agent-service
-          mvn clean package -DskipTests
+          mvn --batch-mode clean deploy -DskipTests \
+            -Dnexus.url=${{ steps.nexus-creds.outputs.url }}
 
-      - name: Upload property-service artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: property-service
-          path: immobilier/property-service/target/*.jar
-          retention-days: 7
-
-      - name: Upload booking-service artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: booking-service
-          path: immobilier/booking-service/target/*.jar
-          retention-days: 7
-
-      - name: Upload agent-service artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: agent-service
-          path: immobilier/agent-service/target/*.jar
-          retention-days: 7
-
+      # ── Summary ───────────────────────────────────────
       - name: Build summary
         run: |
-          echo "✅ All 3 JARs built and uploaded as artifacts"
+          echo "✅ All 3 JARs built and pushed to Nexus"
           echo "➡️  Run Ansible manually on VM1 to deploy:"
           echo "    ansible-playbook -i inventory.yml main.yml --ask-vault-pass"
+          echo "    Nexus URL: ${{ steps.nexus-creds.outputs.url }}"
