@@ -44,7 +44,7 @@ jobs:
         run: |
           CREDS=$(curl -sf \
             -H "X-Vault-Token: ${{ steps.vault-login.outputs.token }}" \
-            ${{ secrets.VAULT_ADDR }}/v1/secret/data/nexus/deploy)
+            ${{ secrets.VAULT_ADDR }}/v1/secret/data/nexus/admin)
           NEXUS_USER=$(echo $CREDS | jq -r '.data.data.username')
           NEXUS_PASS=$(echo $CREDS | jq -r '.data.data.password')
           NEXUS_URL=$(echo $CREDS  | jq -r '.data.data.url')
